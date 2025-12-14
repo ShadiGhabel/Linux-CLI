@@ -108,4 +108,45 @@ public class FileManager {
     public Directory getRoot() {
         return root;
     }
+    public boolean isValidPath(String path){
+        if (path == null || path.trim().isEmpty()){
+            return false;
+        }
+        return true;
+    }
+    public Directory pathResolver(String path){
+        if(!isValidPath(path)){
+            return null;
+        }
+        if(path.startsWith("/")){
+            if(path.equals("/")){
+                return root;
+            }
+            String[] parts = path.substring(1).split("/");
+            Directory current = root;
+            for(String part : parts){
+                if(part.isEmpty()) continue;
+                FileSystem fileSystem = current.findChild(part);
+                if(fileSystem == null || !(fileSystem instanceof Directory)){
+                    return null;
+                }
+                current = (Directory) fileSystem;
+            }
+            return current;
+        }
+        if (path.equals(".")) {
+            return currentDirectory;
+        }
+
+        if (path.equals("..")) {
+            return currentDirectory.getParent() != null ?
+                    currentDirectory.getParent() : currentDirectory;
+        }
+
+        FileSystem fs = currentDirectory.findChild(path);
+        if (fs != null && fs instanceof Directory) {
+            return (Directory) fs;
+        }
+        return null;
+    }
 }
