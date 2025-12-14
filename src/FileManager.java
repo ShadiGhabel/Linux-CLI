@@ -75,25 +75,52 @@ public class FileManager {
         else System.out.println("Error: Invalid command");
     }
     private String[] parseCommand(String input) {
-        input = input.replace("“", "\"").replace("”", "\"");
         List<String> parts = new ArrayList<>();
         StringBuilder current = new StringBuilder();
         boolean inQuotes = false;
 
-        for (char c : input.toCharArray()) {
-            if (c == '"')
+        for (int i = 0; i < input.length(); i++) {
+            char c = input.charAt(i);
+
+            if (c == '\\' && inQuotes && i + 1 < input.length()) {
+                char next = input.charAt(i + 1);
+
+                switch (next) {
+                    case 'n':
+                        current.append('\n');
+                        i++;
+                        continue;
+                    case 't':
+                        current.append('\t');
+                        i++;
+                        continue;
+                    case '"':
+                        current.append('"');
+                        i++;
+                        continue;
+                    case '\\':
+                        current.append('\\');
+                        i++;
+                        continue;
+                    default:
+                        current.append(c);
+                        break;
+                }
+            }
+            if (c == '"') {
                 inQuotes = !inQuotes;
-            else if (c == ' ' && !inQuotes) {
+            } else if (c == ' ' && !inQuotes) {
                 if (current.length() > 0) {
                     parts.add(current.toString());
                     current.setLength(0);
                 }
+            } else {
+                current.append(c);
             }
-            else current.append(c);
         }
-
-        if (current.length() > 0)
+        if (current.length() > 0) {
             parts.add(current.toString());
+        }
         return parts.toArray(new String[0]);
     }
 
